@@ -38,11 +38,12 @@ async def get(name: str, cep: str) -> Dict:
 
     if response.status_code == 200:
         json_response = response.json()
-        logger.info("{source} is done in {time}".format(
+        json_response.update({'source': name})
+
+        logger.info("{source} is done in {time}s".format(
             source=name,
             time=format(time.monotonic() - start, '.3f')
         ))
-        json_response.update({'source': name})
 
         return parse(json_response)
 
