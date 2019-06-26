@@ -1,8 +1,8 @@
 import asyncio
-import requests
 import time
 from typing import Dict
 
+import requests
 from flask import Flask, jsonify
 from loguru import logger
 
