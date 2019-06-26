@@ -32,7 +32,7 @@ def main(cep):
 
 
 async def get(name: str, cep: str) -> Dict:
-    """Realiza as requisições em todos os endpoints"""
+    """Requests the data from given endpoint"""
     start = time.monotonic()
     response = requests.get(cep)
 
@@ -49,7 +49,7 @@ async def get(name: str, cep: str) -> Dict:
 
 
 def parse(content: Dict) -> Dict:
-    """Normaliza o conteudo de respostas de todos os endpoints consultados"""
+    """Normalize the response content"""
     return {
         'cidade': content.get('localidade', content.get('cidade')),
         'estado': content.get('estado', content.get('uf')),
