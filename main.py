@@ -12,7 +12,7 @@ loop = asyncio.new_event_loop()
 endpoints = {
     "viacep":           "https://viacep.com.br/ws/{cep}/json/",
     "postmon":          "https://api.postmon.com.br/v1/cep/{cep}",
-	"republicavirtual": "https://republicavirtual.com.br/web_cep.php?cep={cep}&formato=json",  # noqa
+    "republicavirtual": "https://republicavirtual.com.br/web_cep.php?cep={cep}&formato=json",  # noqa
 }
 
 
