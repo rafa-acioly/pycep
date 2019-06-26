@@ -2,12 +2,9 @@ import asyncio
 import time
 from typing import Dict
 
-import requests
-from flask import Flask, jsonify
+import aiohttp
+from aiohttp import web
 from loguru import logger
-
-application = Flask(__name__)
-loop = asyncio.new_event_loop()
 
 endpoints = {
     "viacep":           "https://viacep.com.br/ws/{cep}/json/",
@@ -16,39 +13,41 @@ endpoints = {
 }
 
 
-@application.route("/<string:cep>")
-def main(cep):
+async def handler(request):
+    cep_requested = request.match_info.get("cep")
+
     tasks = [
-        get(name, code.format(cep=cep))
+        get(name, code.format(cep=cep_requested))
         for name, code in endpoints.items()
     ]
 
-    done, pendings = loop.run_until_complete(
-        asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
+    done, pendings = await asyncio.wait(
+        tasks, return_when=asyncio.FIRST_COMPLETED
     )
 
     for completed in done:
-        return jsonify(completed.result())
+        return web.json_response(completed.result())
 
 
-async def get(name: str, cep: str) -> Dict:
+async def get(service_name: str, endpoint: str) -> Dict:
     """Requests the data from given endpoint"""
     start = time.monotonic()
-    response = requests.get(cep)
+    async with aiohttp.ClientSession() as session:
+        response = await session.get(endpoint)
 
-    if response.status_code == 200:
-        json_response = response.json()
-        json_response.update({'source': name})
+        if response.status == 200:
+            json_response = await response.json()
+            json_response.update({'source': service_name})
 
-        logger.info("{source} is done in {time}s".format(
-            source=name,
-            time=format(time.monotonic() - start, '.3f')
-        ))
+            logger.info("{source} is done in {time}s".format(
+                source=service_name,
+                time=format(time.monotonic() - start, '.3f')
+            ))
 
-        return parse(json_response)
+            return response_parsed(json_response)
 
 
-def parse(content: Dict) -> Dict:
+def response_parsed(content: Dict) -> Dict:
     """Normalize the response content"""
     return {
         'cidade': content.get('localidade', content.get('cidade')),
@@ -60,4 +59,6 @@ def parse(content: Dict) -> Dict:
 
 
 if __name__ == "__main__":
-    application.run(debug=False, use_reloader=False)
+    app = web.Application()
+    app.add_routes([web.get('/{cep}', handler)])
+    web.run_app(app)
