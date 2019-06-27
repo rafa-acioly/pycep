@@ -2,6 +2,8 @@ import asyncio
 import time
 from typing import Dict
 
+from middlewares import request_validation
+
 import aiohttp
 from aiohttp import web
 from loguru import logger
@@ -25,7 +27,7 @@ async def handler(request):
         cep_info = await task_completed
 
         if cep_info is None:
-            return web.json_response({}, status=404)
+            raise web.HTTPNotFound()
 
         return web.json_response(cep_info)
 
@@ -60,6 +62,6 @@ def response_parsed(content: Dict) -> Dict:
 
 
 if __name__ == "__main__":
-    app = web.Application()
+    app = web.Application(middlewares=[request_validation])
     app.add_routes([web.get('/{cep}', handler)])
     web.run_app(app)
