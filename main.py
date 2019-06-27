@@ -21,12 +21,13 @@ async def handler(request):
         for name, code in endpoints.items()
     ]
 
-    done, pendings = await asyncio.wait(
-        tasks, return_when=asyncio.FIRST_COMPLETED
-    )
+    for task_completed in asyncio.as_completed(tasks):
+        cep_info = await task_completed
 
-    for completed in done:
-        return web.json_response(completed.result())
+        if cep_info is None:
+            return web.json_response({}, status=404)
+
+        return web.json_response(cep_info)
 
 
 async def get(service_name: str, endpoint: str) -> Dict:
