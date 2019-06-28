@@ -1,3 +1,4 @@
+import os
 import asyncio
 import time
 from http import HTTPStatus
@@ -74,4 +75,3 @@ def response_parsed(content: Dict) -> Union[Dict, None]:
 if __name__ == "__main__":
     app = aiohttp.web.Application(middlewares=[request_validation])
     app.add_routes([web.get('/{cep}', handler)])
-    web.run_app(app)

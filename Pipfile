@@ -8,6 +8,7 @@ requests = "*"
 flask = "*"
 loguru = "*"
 aiohttp = "*"
+gunicorn = "*"
 
 [dev-packages]
 "flake8" = "*"
