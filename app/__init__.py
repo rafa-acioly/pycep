@@ -71,6 +71,5 @@ def response_parsed(content: Dict) -> Union[Dict, None]:
     return payload_parsed if payload_parsed.get('estado') else None
 
 
-if __name__ == "__main__":
-    server = aiohttp.web.Application(middlewares=[request_validation])
-    server.add_routes([web.get('/{cep}', handler)])
+server = aiohttp.web.Application(middlewares=[request_validation])
+server.add_routes([web.get('/{cep}', handler)])
