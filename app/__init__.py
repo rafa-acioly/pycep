@@ -1,4 +1,3 @@
-import os
 import asyncio
 import time
 from http import HTTPStatus
@@ -8,7 +7,7 @@ import aiohttp
 from aiohttp import web
 from loguru import logger
 
-from middlewares import request_validation
+from .middlewares import request_validation
 
 endpoints = {
     "viacep":           "https://viacep.com.br/ws/{cep}/json/",
