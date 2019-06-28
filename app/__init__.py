@@ -73,5 +73,5 @@ def response_parsed(content: Dict) -> Union[Dict, None]:
 
 
 if __name__ == "__main__":
-    app = aiohttp.web.Application(middlewares=[request_validation])
-    app.add_routes([web.get('/{cep}', handler)])
+    server = aiohttp.web.Application(middlewares=[request_validation])
+    server.add_routes([web.get('/{cep}', handler)])
