@@ -5,7 +5,6 @@ name = "pypi"
 
 [packages]
 requests = "*"
-flask = "*"
 loguru = "*"
 aiohttp = "*"
 gunicorn = "*"

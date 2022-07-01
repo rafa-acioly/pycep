@@ -59,6 +59,7 @@ async def get(service_name: str, endpoint: str) -> Dict:
             time=format(time.monotonic() - start, '.3f')
         ))
 
+        response_content.update(source=service_name)
         return response_parsed(response_content)
 
 
@@ -68,7 +69,8 @@ def false_positive_response(content: Dict) -> bool:
     Some services return a 200 status code with a json with empty values,
     this is a false positive.
     """
-    return content.get('uf') is None or len(content.get('uf')) == 0
+    state_code = content.get('uf', content.get('estado'))
+    return state_code is None or len(state_code) == 0
 
 
 def response_parsed(content: Dict) -> Union[Dict, None]:
