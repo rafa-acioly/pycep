@@ -43,16 +43,23 @@ async def get(service_name: str, endpoint: str) -> Dict:
     async with aiohttp.ClientSession() as session:
         response = await session.get(endpoint)
 
-        if response.status == HTTPStatus.OK:
-            response_content = await response.json()
-            if not false_positive_response(response_content):
+        if not response.status == HTTPStatus.OK:
+            logger.warning(
+                f"{service_name} returned {response.status} for {endpoint}")
+            return None
 
-                logger.info("{source} took {time}s".format(
-                    source=service_name,
-                    time=format(time.monotonic() - start, '.3f')
-                ))
+        response_content = await response.json()
+        if false_positive_response(response_content):
+            logger.warning(
+                f"{service_name} returned a false positive for {endpoint}")
+            return None
 
-                return response_parsed(response_content)
+        logger.info("{source} took {time}s".format(
+            source=service_name,
+            time=format(time.monotonic() - start, '.3f')
+        ))
+
+        return response_parsed(response_content)
 
 
 def false_positive_response(content: Dict) -> bool:
@@ -81,4 +88,4 @@ def response_parsed(content: Dict) -> Union[Dict, None]:
 
 
 server = aiohttp.web.Application(middlewares=[request_validation])
-server.add_routes([web.get('/{cep}', handler)])
+server.add_routes([web.get('/api/{cep}', handler)])
