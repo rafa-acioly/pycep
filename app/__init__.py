@@ -16,7 +16,7 @@ endpoints = {
 }
 
 
-async def handler(request):
+async def handler(request) -> web.Response:
     cep_requested = request.match_info.get("cep")
 
     tasks = [
@@ -44,15 +44,24 @@ async def get(service_name: str, endpoint: str) -> Dict:
         response = await session.get(endpoint)
 
         if response.status == HTTPStatus.OK:
-            json_response = await response.json()
-            json_response.update({'source': service_name})
+            response_content = await response.json()
+            if not false_positive_response(response_content):
 
-            logger.info("{source} is done in {time}s".format(
-                source=service_name,
-                time=format(time.monotonic() - start, '.3f')
-            ))
+                logger.info("{source} took {time}s".format(
+                    source=service_name,
+                    time=format(time.monotonic() - start, '.3f')
+                ))
 
-            return response_parsed(json_response)
+                return response_parsed(response_content)
+
+
+def false_positive_response(content: Dict) -> bool:
+    """
+    Checks if the response is a false positive.
+    Some services return a 200 status code with a json with empty values,
+    this is a false positive.
+    """
+    return content.get('uf') is None or len(content.get('uf')) == 0
 
 
 def response_parsed(content: Dict) -> Union[Dict, None]:
